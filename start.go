@@ -11,6 +11,7 @@ import (
 	"github.com/awslabs/goformation/intrinsics"
 	"github.com/fatih/color"
 
+	"github.com/awslabs/aws-sam-local/docker"
 	"github.com/awslabs/aws-sam-local/router"
 	"github.com/awslabs/goformation"
 	"github.com/codegangsta/cli"
@@ -52,6 +53,15 @@ func start(c *cli.Context) {
 		os.Exit(1)
 	}
 	log.Printf("Connected to Docker %s", dockerVersion)
+
+	go func() {
+		log.Println("Starting dynamodb...")
+		_, err := docker.Run("dwmkerr/dynamodb:38", "8000", "dynamodb", c)
+		if err != nil {
+			log.Printf("Something went wrong while spinning up dynamodb: %v", err)
+			os.Exit(1)
+		}
+	}()
 
 	// Get the working directory for the project based on
 	// the template directory. Also, give an opportunity for
